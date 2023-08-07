@@ -15,7 +15,7 @@ const imageWidth = windowWidth * 0.3;
 const LibraryPage = () => {
   const [permissionResponse, requestPermission] = MediaLibrary.usePermissions();
   const [photos, setPhotos] = useState([]);
-  const [selectedPhotos, setSelectedPhotos] = useState();
+  const [selectedPhotos, setSelectedPhotos] = useState([]);
 
   useEffect(() => {
     if (permissionResponse && permissionResponse.granted) {
@@ -59,21 +59,45 @@ const LibraryPage = () => {
     setPhotos(media.assets);
   };
 
+  const HandleUp = async () => {};
+
   return (
     <FlatList
-      numColumns={2}
+      numColumns={3}
       data={photos}
-      renderItem={({ item }) => <ImageItem photo={item} />}
+      renderItem={({ item }) => (
+        <ImageItem
+          photo={item}
+          selected={
+            selectedPhotos.findIndex((selected) => selected.id == item.id) + 1
+          }
+          onSelect={() => setSelectedPhotos([...selectedPhotos, item])}
+          onRemove={() =>
+            setSelectedPhotos(
+              selectedPhotos.filter((selected) => selected.id !== item.id)
+            )
+          }
+        />
+      )}
       keyExtractor={(item) => item.uri}
     />
   );
 };
 export default LibraryPage;
-const ImageItem = ({ photo }) => {
+const ImageItem = ({ photo, onSelect, onRemove, selected }) => {
   return (
-    <Image
-      source={{ uri: photo.uri }}
-      style={{ width: imageWidth, height: imageWidth, margin: 1 }}
-    />
+    <TouchableOpacity onPress={() => (selected ? onRemove() : onSelect())}>
+      <View>
+        <Image
+          source={{ uri: photo.uri }}
+          style={{ width: imageWidth, height: imageWidth, margin: 1 }}
+        />
+        {!!selected && (
+          <View>
+            <Text>{selected}</Text>
+          </View>
+        )}
+      </View>
+    </TouchableOpacity>
   );
 };
